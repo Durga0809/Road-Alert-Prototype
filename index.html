@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Madurai AI Smart Road Alert System</title>
+
+<style>
+body{
+  margin:0;
+  font-family:'Segoe UI',sans-serif;
+  overflow:hidden;
+  background:black;
+}
+
+#map{
+  position:fixed;
+  height:100vh;
+  width:100%;
+  border:none;
+  filter: blur(3px) brightness(75%);
+  z-index:0;
+}
+
+/* 🌊 Responsive Overlay */
+.overlay{
+  position:absolute;
+  top:55%; /* Slightly pushed down for mobile buttons */
+  left:50%;
+  transform:translate(-50%,-50%);
+  text-align:center;
+  z-index:1000;
+  animation: fadeIn 1.2s ease;
+  width: 90%; /* Mobile screen-il 90% space edukkum */
+  max-width: 500px;
+}
+
+/* 🧠 Responsive Typography */
+.mainHeading{
+  /* Screen size-kku etrapol font size maarum */
+  font-size: clamp(24px, 8vw, 44px); 
+  font-weight: 800;
+  color: #0b3d91;
+  margin-bottom: 15px;
+  letter-spacing: 1px;
+  text-shadow: 2px 2px 6px rgba(255,255,255,0.9);
+  animation: smoothSlide 1s ease;
+}
+
+h2{
+  color:navy;
+  background:white;
+  display:inline-block;
+  padding: 8px 20px;
+  border-radius:30px;
+  margin-bottom:20px;
+  font-size: clamp(14px, 4vw, 18px);
+  box-shadow:0 0 15px rgba(0,0,128,0.4);
+}
+
+/* Responsive Inputs */
+input{
+  display:block;
+  width: 100%; /* Full width within the overlay */
+  max-width: 300px;
+  box-sizing: border-box; /* Padding-al size maaraamal irukka */
+  padding:14px;
+  margin:10px auto;
+  border-radius:30px;
+  border:none;
+  font-size:16px;
+  text-align:center;
+  outline:none;
+  transition:0.3s;
+}
+
+input:focus{
+  transform:scale(1.05);
+  box-shadow:0 0 12px navy;
+}
+
+button{
+  padding:12px 25px;
+  margin:8px;
+  border:none;
+  border-radius:30px;
+  font-size:16px;
+  cursor:pointer;
+  font-weight:bold;
+  transition:0.3s;
+}
+
+.routeBtn{ background:navy; color:white; width: 200px; }
+.signBtn{ background:white; color:navy; width: 200px; }
+
+/* 🌐 Responsive Navigation Buttons */
+.langBtn, .historyBtn{
+  position:fixed;
+  top:15px;
+  padding:8px 15px;
+  font-size: 14px;
+  z-index:2000;
+}
+
+.langBtn{ right:15px; }
+.historyBtn{ left:15px; }
+
+/* ✨ Animations */
+@keyframes fadeIn{ from{opacity:0;} to{opacity:1;} }
+@keyframes smoothSlide{ from{ transform:translateY(-30px); opacity:0; } to{ transform:translateY(0); opacity:1; } }
+
+/* 📱 Mobile-kku mattum extra adjustments */
+@media (max-width: 480px) {
+  .overlay { top: 58%; }
+  .routeBtn, .signBtn { width: 100%; max-width: 250px; }
+}
+</style>
+</head>
+<body>
+
+<button class="historyBtn" onclick="openHistory()" id="historyText">History</button>
+<button class="langBtn" onclick="toggleLang()">தமிழ்</button>
+
+<iframe id="map" src="https://maps.google.com/maps?q=Madurai&t=&z=13&ie=UTF8&iwloc=&output=embed"></iframe>
+
+<div class="overlay">
+  <div class="mainHeading" id="mainHeading">MADURAI AI SMART ROAD ALERT SYSTEM</div>
+  <h2 id="title">Madurai Route Finder</h2>
+
+  <input id="start" placeholder="Start Area">
+  <input id="end" placeholder="Destination">
+
+  <button class="routeBtn" onclick="openRoute()" id="routeText">Show Route</button>
+  <br>
+  <button class="signBtn" id="signText">
+    <a href="login.html" style="color: navy; text-decoration: none;">Sign In / Register</a>
+  </button>
+</div>
+
+<script>
+let tamil=false;
+function openRoute(){
+  var start = document.getElementById("start").value;
+  var end = document.getElementById("end").value;
+  if(start=="" || end==""){
+    alert(tamil ? "இரண்டு இடங்களையும் உள்ளிடவும்" : "Enter both locations");
+    return;
+  }
+  var url = `https://www.google.com/maps/dir/${start}+Madurai/${end}+Madurai`;
+  window.open(url, "_blank");
+}
+function openHistory(){ window.location.href = "history.html"; }
+function toggleLang(){
+  tamil = !tamil;
+  if(tamil){
+    document.getElementById("mainHeading").innerText="மதுரை AI ஸ்மார்ட் சாலை எச்சரிக்கை அமைப்பு";
+    document.getElementById("title").innerText="மதுரை வழி கண்டுபிடிப்பு";
+    document.getElementById("start").placeholder="தொடக்க இடம்";
+    document.getElementById("end").placeholder="இறுதி இடம்";
+    document.getElementById("routeText").innerText="வழி காண்க";
+    document.getElementById("signText").innerText="உள்நுழை / பதிவு";
+    document.getElementById("historyText").innerText="வரலாறு";
+    document.querySelector(".langBtn").innerText="English";
+  }else{
+    document.getElementById("mainHeading").innerText="MADURAI AI SMART ROAD ALERT SYSTEM";
+    document.getElementById("title").innerText="Madurai Route Finder";
+    document.getElementById("start").placeholder="Start Area";
+    document.getElementById("end").placeholder="Destination";
+    document.getElementById("routeText").innerText="Show Route";
+    document.getElementById("signText").innerText="Sign In / Register";
+    document.getElementById("historyText").innerText="History";
+    document.querySelector(".langBtn").innerText="தமிழ்";
+  }
+}
+</script>
+</body>
+</html>

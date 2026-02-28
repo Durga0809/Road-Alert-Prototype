@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Forgot Password</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+margin:0;
+background:#0b1d3a;
+font-family:Arial;
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+}
+.box{
+background:white;
+padding:25px;
+width:100%;
+max-width:360px;
+border-radius:8px;
+}
+.top{
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+.lang button{
+margin-left:5px;
+padding:5px 10px;
+border:none;
+border-radius:4px;
+cursor:pointer;
+}
+input{
+width:100%;
+padding:10px;
+margin:12px 0;
+border-radius:6px;
+border:1px solid #ccc;
+}
+button.main{
+width:100%;
+padding:12px;
+background:#0b1d3a;
+color:white;
+border:none;
+border-radius:6px;
+}
+</style>
+</head>
+<body>
+
+<div class="box">
+
+<div class="top">
+<b id="title">Forgot password</b>
+
+<div class="lang">
+<button onclick="setLang('en')">EN</button>
+<button onclick="setLang('ta')">தமிழ்</button>
+</div>
+
+</div>
+
+<p id="desc">Enter your email to reset your password</p>
+
+<input type="email" id="email" placeholder="Enter email">
+
+<button class="main" onclick="sendLink()" id="btnText">Send reset link</button>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA_4y5vvkWDD44Zf3mrcUS2XevM2tEwNSQ",
+  authDomain: "ai-smart-road-alert-system.firebaseapp.com",
+  projectId: "ai-smart-road-alert-system",
+  appId: "1:1030202692725:web:8188c41667e8a45e66543c"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+window.sendLink = function () {
+  const email = document.getElementById("email").value;
+
+  if(!email){
+    alert(currentLang === 'ta' ? "மின்னஞ்சலை உள்ளிடவும்" : "Enter email");
+    return;
+  }
+
+  sendPasswordResetEmail(auth, email)
+    .then(() => {
+      alert(currentLang === 'ta'
+        ? "ரிசெட் லிங்க் அனுப்பப்பட்டது ✅ உங்கள் மெயிலை பார்க்கவும்"
+        : "Reset link sent successfully ✅ Check your mail");
+    })
+    .catch((error) => {
+      alert(error.message);
+    });
+}
+
+// 🌍 Language Switch Logic
+let currentLang = 'en';
+
+window.setLang = function(lang){
+  currentLang = lang;
+
+  if(lang === 'ta'){
+    document.getElementById("title").innerText = "கடவுச்சொல் மறந்துவிட்டீர்களா";
+    document.getElementById("desc").innerText = "கடவுச்சொல்லை மாற்ற உங்கள் மின்னஞ்சலை உள்ளிடவும்";
+    document.getElementById("email").placeholder = "மின்னஞ்சல் உள்ளிடவும்";
+    document.getElementById("btnText").innerText = "ரிசெட் லிங்க் அனுப்பு";
+  }
+  else{
+    document.getElementById("title").innerText = "Forgot password";
+    document.getElementById("desc").innerText = "Enter your email to reset your password";
+    document.getElementById("email").placeholder = "Enter email";
+    document.getElementById("btnText").innerText = "Send reset link";
+  }
+}
+
+</script>
+
+</body>
+</html>

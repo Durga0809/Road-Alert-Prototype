@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Madurai Smart Road Alert System</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+body{background:#1a2a3a;font-family:'Segoe UI',Arial;margin:0;padding:10px;}
+
+.main-wrapper{display:flex;flex-wrap:wrap;justify-content:center;gap:20px;max-width:1200px;margin:20px auto;}
+
+.chat-container{
+flex:1;min-width:320px;max-width:500px;background:#001f3f;border-radius:15px;
+display:flex;flex-direction:column;height:600px;color:#fff;
+}
+
+.chat-header{background:#0074D9;padding:15px;text-align:center;font-weight:bold;border-radius:15px 15px 0 0;}
+
+.chat-body{flex:1;padding:15px;overflow-y:auto;}
+
+.chat-message{margin-bottom:12px;display:flex;}
+.user-msg{justify-content:flex-end;}
+.bot-msg{justify-content:flex-start;}
+
+.msg-content{padding:12px 16px;border-radius:15px;max-width:80%;}
+.user-msg .msg-content{background:#0074D9;color:white;}
+.bot-msg .msg-content{background:#e2e2e2;color:#001f3f;}
+
+.chat-footer{padding:15px;display:flex;gap:10px;border-top:1px solid #0a2e52;}
+
+.map-container{flex:1.2;min-width:320px;height:600px;background:#fff;border-radius:15px;overflow:hidden;border:4px solid #0074D9;}
+iframe{width:100%;height:100%;border:none;}
+
+@media (max-width:992px){
+.main-wrapper{flex-direction:column;}
+.chat-container,.map-container{height:500px;}
+}
+</style>
+</head>
+
+<body>
+
+<h2 class="text-center text-white fw-bold">Madurai Smart Road Assistant</h2>
+
+<div class="main-wrapper">
+
+<!-- CHAT -->
+<div class="chat-container">
+
+<div class="chat-header">Madurai Road Alert Bot</div>
+
+<div class="chat-body" id="chatBody">
+<div class="bot-msg">
+<div class="msg-content">Vanakkam! Select area from dropdown 🚦</div>
+</div>
+</div>
+
+<div class="chat-footer">
+
+<select id="areaSelect" class="form-select">
+<option value="">Select Area...</option>
+</select>
+
+<button class="btn btn-primary" onclick="selectArea()">Check</button>
+<button class="btn btn-success" onclick="speakMessage()">🔊</button>
+
+</div>
+</div>
+
+<!-- MAP -->
+<div class="map-container">
+<iframe id="googleMap"
+src="https://maps.google.com/maps?q=Madurai&t=&z=13&output=embed">
+</iframe>
+</div>
+
+</div>
+
+<script>
+
+// 🔥 FULL AREA LIST
+const areaMap = {
+"anaiyur":"அணையூர்","kannanendal":"கண்ணனேந்தல்","melamadai":"மேலமடை",
+"vilangudi":"விளாங்குடி","k. pudur":"கே.புதூர்","bibikulam":"பிபிகுளம்",
+"chinna chokkikulam":"சின்னச்சொக்கிக்குளம்","chokikulam":"சொக்கிக்குளம்",
+"alagar kovil road":"அழகர் கோவில் ரோடு","narasingam":"நரசிங்கம்",
+"othakadai":"ஒத்தகடை","kallandhiri":"கல்லந்திரி","paravai":"பரவாய்",
+"alagappan nagar":"அழகப்பன் நகர்","anna nagar":"அண்ணா நகர்",
+"gandhi nagar":"காந்தி நகர்","andarkottaram":"அண்டற்கோட்டாரம்",
+"appanthirupathiarappalayam":"அப்பந்துருப்பதியரப்பாளயம்",
+"kochadai":"கொச்சடை","bethaniyapuram":"பெதானியாபுரம்",
+"koodal nagar":"கூடல் நகர்","andalpuram":"அண்டல்புரம்","melamathur":"மேலமதூர்",
+"keezhamathur":"கீழமதூர்","thuvariman":"துவாரிமான்","achampattu":"ஆச்சம்பட்டு",
+"pudukulam":"புதுக்குளம்","meenambalpuram":"மீனம்பால் புறம்",
+"gnanavolivupuram":"ஞானவொளிவுப்புரம்","mahapupalayam":"மகாப்புபாளயம்",
+"muthuramalingapuram":"முதுராமலிங்கபுரம்",
+"avaniapuram":"அவனியாபுரம்","thirupparankundram":"திருப்பரங்குன்றம்","thirunagar":"திருநகர்",
+"jaihindpuram":"ஜெய்ஹிந்த்புரம்","chinna anuppanadi":"சின்ன அனுப்பாநடி",
+"iravadanallur":"இரவடநல்லூர்","villacheri":"வில்லச்சேரி",
+"harveypatti":"ஹார்விபட்டி","chinthamani":"சிந்தாமணி","viraganur":"விராகனூர்",
+"kamarajar salai":"காமராஜர் சாலை","tepakulam":"தேபகுளம்",
+"vandiyur":"வண்டியூர்","arumbanur":"அரும்பனூர்","athalai":"அத்தலை",
+"ayilankudi":"ஐலாங்குடி","chatrapatti":"சத்திரபட்டி","chettikulam":"செட்டிக்குளம்",
+"chinnapatti":"சின்னப்பட்டி","othaialangulam":"ஒத்தையலங்குளம்","simmakkal":"சிம்மக்கல்",
+"periyar nagar":"பெரியார் நகர்","karumandapam":"கருமந்தபம்","sellur":"செல்லூர்",
+"thathaneri":"தாத்தனேரி","gomathi nagar":"கோமதி நகர்","usilampatti road":"உசிலம்பட்டி ரோடு",
+"kappalur":"கப்பலூர்","madakulam":"மாடாகுளம்","raja nagar":"ராஜா நகர்","arasaradi":"அரசராடி",
+"nelpettai":"நெற்பேட்டை","thirumangalam":"திருமங்கலம்","usilampatti":"உசிலம்பட்டி",
+"melur":"மேலூர்","sivagangai road":"சிவகங்கை ரோடு","palanganatham":"பாலங்கநாதம்",
+"thamukkam":"தமுக்கம்","erapanpatty":"ஏராபன்பட்டி","kallikudi":"கல்லிக்குடி",
+"thamaraikulam":"தாமரைகுளம்","anuppanadi":"அனுப்பாநடி","sungam":"சுங்கம்",
+"keelavasal":"கீழ்வாசல்","nanmangalam":"நான்மங்கலம்"
+};
+
+// Messages
+const messages=[
+"road blocked 🚧",
+"minor traffic jam 🚦",
+"accident reported ⚠️",
+"heavy traffic 🚦",
+"road under maintenance 🛠️",
+"road is clear ✅"
+];
+
+const areaScenarios={};
+for(const area in areaMap){
+areaScenarios[area]=messages[Math.floor(Math.random()*messages.length)];
+}
+
+let lastBotMessage="";
+
+// 🔥 Fill dropdown with ALL areas
+window.onload=function(){
+const select=document.getElementById("areaSelect");
+
+for(const [eng,tam] of Object.entries(areaMap)){
+const option=document.createElement("option");
+option.value=eng;
+option.textContent=eng.toUpperCase()+" — "+tam;
+select.appendChild(option);
+}
+}
+
+// Select area
+function selectArea(){
+const area=document.getElementById("areaSelect").value;
+if(!area) return;
+
+appendMessage(area.toUpperCase(),"user-msg");
+
+const msg=areaScenarios[area];
+const response=`${area.toUpperCase()}: ${msg}\n${areaMap[area]}: ${msg}`;
+
+appendMessage(response,"bot-msg");
+lastBotMessage=response;
+
+updateMap(area);
+}
+
+// Map update
+function updateMap(area){
+document.getElementById("googleMap").src=
+`https://maps.google.com/maps?q=${area},Madurai&t=&z=15&output=embed`;
+}
+
+// Append message
+function appendMessage(msg,type){
+const chatBody=document.getElementById("chatBody");
+const div=document.createElement("div");
+div.className=`chat-message ${type}`;
+div.innerHTML=`<div class="msg-content">${msg.replace(/\n/g,"<br>")}</div>`;
+chatBody.appendChild(div);
+chatBody.scrollTop=chatBody.scrollHeight;
+}
+
+// Speak
+function speakMessage(){
+if(!lastBotMessage) return;
+window.speechSynthesis.speak(new SpeechSynthesisUtterance(lastBotMessage));
+}
+
+</script>
+
+</body>
+</html>

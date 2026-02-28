@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Madurai Road History Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+    --navy-deep: #0a192f;
+    --navy-light: #112240;
+    --accent-blue: #64ffda;
+    --alert-red: #ff4d4d;
+    --cleared-green: #00ff6a;
+    --pure-white: #ffffff;
+}
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+body { background: var(--navy-deep); color: var(--pure-white); }
+
+h1 { text-align:center; margin:20px 0; font-family:'Orbitron',sans-serif; }
+
+.dashboard { display: flex; gap:20px; max-width:1200px; margin:0 auto; padding:20px; flex-wrap: wrap; }
+.panel {
+    flex:1;
+    min-width:280px;
+    background: var(--navy-light);
+    border-radius:12px;
+    padding:15px;
+    max-height:500px;
+    overflow-y:auto;
+    border: 2px solid rgba(100,255,218,0.2);
+    transition:0.3s;
+}
+.panel h2 { text-align:center; margin-bottom:10px; color: var(--accent-blue); }
+
+.road-card {
+    padding:12px 15px;
+    margin:10px 0;
+    border-radius:8px;
+    cursor:pointer;
+    background: rgba(100,255,218,0.05);
+    transition:0.3s;
+}
+.road-card.blocked { border-left: 4px solid var(--alert-red); animation: pulseRed 2s infinite; }
+.road-card.cleared { border-left: 4px solid var(--cleared-green); animation: pulseGreen 2s infinite; }
+.road-card:hover { transform: scale(1.02); box-shadow:0 0 10px rgba(100,255,218,0.4); }
+
+@keyframes pulseRed {
+    0% { box-shadow: 0 0 5px var(--alert-red); }
+    50% { box-shadow: 0 0 20px var(--alert-red); }
+    100% { box-shadow: 0 0 5px var(--alert-red); }
+}
+@keyframes pulseGreen {
+    0% { box-shadow: 0 0 5px var(--cleared-green); }
+    50% { box-shadow: 0 0 20px var(--cleared-green); }
+    100% { box-shadow: 0 0 5px var(--cleared-green); }
+}
+
+.map-wrapper {
+    width:100%;
+    max-width:1200px;
+    height:500px;
+    margin:20px auto;
+    border-radius:15px;
+    overflow:hidden;
+    border:3px solid var(--navy-light);
+    box-shadow:0 0 20px rgba(0,0,0,0.5);
+    position:relative;
+}
+iframe { width:100%; height:100%; border:none; filter:invert(90%) hue-rotate(180deg) brightness(95%) contrast(90%); }
+
+.toggle-btns { text-align:center; margin-bottom:10px; }
+.toggle-btns button {
+    margin:0 10px; padding:10px 20px; border:none; border-radius:8px;
+    cursor:pointer; font-weight:bold; background: var(--accent-blue); color: var(--navy-deep);
+    transition:0.3s;
+}
+.toggle-btns button:hover { opacity:0.8; transform: scale(1.05); }
+
+.lang-btn { background: var(--accent-blue); color: var(--navy-deep); margin-left:10px; }
+</style>
+</head>
+<body>
+
+<h1 id="dashboardHeading">Madurai Road History Dashboard</h1>
+
+<div class="toggle-btns">
+    <button onclick="showPanel('blocked')">Blocked Roads</button>
+    <button onclick="showPanel('cleared')">Cleared Roads</button>
+    <button class="lang-btn" onclick="toggleLanguage()" id="langBtn">தமிழ்</button>
+ <button class="lang-btn" onclick="goBack()" id="backBtn">⬅ Back</button>
+</div>
+
+<div class="dashboard">
+    <!-- Blocked Roads Panel -->
+    <div class="panel" id="blockedPanel">
+        <h2 id="blockedTitle">Blocked Roads</h2>
+        <div class="road-card blocked" data-en="Goripalayam Junction" data-ta="கோரிப்பாளையம் சந்திப்பு" onclick="focusMap(9.926,78.119,'Blocked: Goripalayam')">Goripalayam Junction</div>
+        <div class="road-card blocked" data-en="Big Bazaar Road" data-ta="பிக் பஜார் ரோடு" onclick="focusMap(9.938,78.121,'Blocked: Big Bazaar')">Big Bazaar Road</div>
+        <div class="road-card blocked" data-en="Anna Salai" data-ta="அண்ணா சாலை" onclick="focusMap(9.941,78.126,'Blocked: Anna Salai')">Anna Salai</div>
+        <div class="road-card blocked" data-en="Ellis Nagar" data-ta="எலிஸ் நகர்" onclick="focusMap(9.945,78.130,'Blocked: Ellis Nagar')">Ellis Nagar</div>
+        <div class="road-card blocked" data-en="Teppakulam Road" data-ta="தெப்பக்குளம் ரோடு" onclick="focusMap(9.950,78.133,'Blocked: Teppakulam')">Teppakulam Road</div>
+        <div class="road-card blocked" data-en="Narimedu Road" data-ta="நரிமேடு ரோடு" onclick="focusMap(9.955,78.135,'Blocked: Narimedu')">Narimedu Road</div>
+        <div class="road-card blocked" data-en="Alagar Kovil Road" data-ta="அழகர் கோவில் ரோடு" onclick="focusMap(9.960,78.138,'Blocked: Alagar Kovil')">Alagar Kovil Road</div>
+        <div class="road-card blocked" data-en="Madakulam Road" data-ta="மடகுளம் ரோடு" onclick="focusMap(9.965,78.140,'Blocked: Madakulam')">Madakulam Road</div>
+        <div class="road-card blocked" data-en="Koodal Nagar" data-ta="கூடல் நகர்" onclick="focusMap(9.970,78.142,'Blocked: Koodal Nagar')">Koodal Nagar</div>
+    </div>
+
+    <!-- Cleared Roads Panel -->
+    <div class="panel" id="clearedPanel">
+        <h2 id="clearedTitle">Cleared Roads</h2>
+        <div class="road-card cleared" data-en="Teppakulam Road" data-ta="தேப்பாக்குளம் ரோடு" onclick="focusMap(9.925,78.115,'Cleared: Teppakulam')">Teppakulam Road</div>
+        <div class="road-card cleared" data-en="Narimedu Road" data-ta="நரிமேடு ரோடு" onclick="focusMap(9.930,78.118,'Cleared: Narimedu')">Narimedu Road</div>
+        <div class="road-card cleared" data-en="Ellis Nagar" data-ta="எலிஸ் நகர்" onclick="focusMap(9.935,78.120,'Cleared: Ellis Nagar')">Ellis Nagar</div>
+        <div class="road-card cleared" data-en="Big Bazaar Road" data-ta="பிக் பஜார் ரோடு" onclick="focusMap(9.940,78.123,'Cleared: Big Bazaar')">Big Bazaar Road</div>
+        <div class="road-card cleared" data-en="Goripalayam Junction" data-ta="தெப்பக்குளம் சந்திப்பு" onclick="focusMap(9.945,78.126,'Cleared: Goripalayam')">Goripalayam Junction</div>
+        <div class="road-card cleared" data-en="Anna Salai" data-ta="அண்ணா சாலை" onclick="focusMap(9.950,78.130,'Cleared: Anna Salai')">Anna Salai</div>
+        <div class="road-card cleared" data-en="Alagar Kovil Road" data-ta="அழகர் கோவில் ரோடு" onclick="focusMap(9.955,78.133,'Cleared: Alagar Kovil')">Alagar Kovil Road</div>
+    </div>
+</div>
+
+<div class="map-wrapper">
+    <iframe id="mapFrame" src="https://maps.google.com/maps?q=Madurai,TamilNadu&t=m&z=14&output=embed"></iframe>
+</div>
+
+<script>
+let currentLang = 'en';
+
+function showPanel(panel) {
+    document.getElementById('blockedPanel').style.display = panel==='blocked' ? 'block' : 'none';
+    document.getElementById('clearedPanel').style.display = panel==='cleared' ? 'block' : 'none';
+}
+
+function focusMap(lat, lng, label) {
+    const mapURL = `https://maps.google.com/maps?q=${lat},${lng}&t=m&z=17&output=embed`;
+    document.getElementById('mapFrame').src = mapURL;
+}
+
+// Toggle language
+function toggleLanguage() {
+    currentLang = currentLang==='en' ? 'ta' : 'en';
+    
+    // Update dashboard heading
+    document.getElementById('dashboardHeading').innerText = currentLang==='en' 
+        ? 'Madurai Road History Dashboard' 
+        : 'மதுரை சாலை வரலாறு கண்காணிப்பு';
+    
+    // Update road names
+    document.querySelectorAll('.road-card').forEach(card=>{
+        card.innerText = card.getAttribute(`data-${currentLang}`);
+    });
+    
+    // Update panel titles
+    document.getElementById('blockedTitle').innerText = currentLang==='en' ? 'Blocked Roads' : 'தடைசெய்யப்பட்ட சாலைகள்';
+    document.getElementById('clearedTitle').innerText = currentLang==='en' ? 'Cleared Roads' : 'திறந்த சாலைகள்';
+    
+    // Update button label
+    document.getElementById('langBtn').innerText = currentLang==='en' ? 'தமிழ்' : 'English';
+}
+
+// Initially show blocked panel
+showPanel('blocked');
+function goBack() {
+    window.location.href = "history.html"; // replace with your actual history page URL
+}
+</script>
+
+</body>
+</html>

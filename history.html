@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History-Madurai</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+     <style>
+        /* (Theming remains the same as previous) */
+        :root {
+            --navy-deep: #0a192f;
+            --navy-light: #112240;
+            --accent-blue: #64ffda; 
+            --pure-white: #ffffff;
+            --slate-gray: #8892b0;
+            --alert-red: #ff4d4d;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--navy-deep);
+            color: var(--pure-white);
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+        }
+
+        h1, h2, .orbitron {
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* --- AI STATUS BAR --- */
+        .ai-status {
+            background: rgba(17, 34, 64, 0.9);
+            border-bottom: 2px solid var(--accent-blue);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .scan-info { font-size: 0.8rem; flex: 1; min-width: 120px; }
+        #scanTimer { color: var(--accent-blue); font-weight: bold; }
+
+        .confidence-container { flex: 1; display: flex; flex-direction: column; align-items: center; min-width: 160px; }
+        #confLabel { font-size: 0.8rem; }
+        
+        .confidence-bar {
+            width: 100%;
+            max-width: 150px;
+            height: 8px;
+            background: #233554;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .fill {
+            height: 100%;
+            width: 92%;
+            background: var(--accent-blue);
+            box-shadow: 0 0 10px var(--accent-blue);
+        }
+
+        /* --- HERO --- */
+        .hero { text-align: center; padding: 40px 15px; }
+        #typing { font-size: clamp(1.2rem, 5vw, 2.5rem); min-height: 1.5em; color: var(--pure-white); margin-bottom: 10px; }
+
+        /* --- STATS --- */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--navy-light);
+            border: 1px solid rgba(100, 255, 218, 0.1);
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        .card h2 { color: var(--accent-blue); font-size: 2rem; }
+
+        /* --- 🌍 LIVE MAP SECTION --- */
+        .map-section { text-align: center; padding: 20px; }
+        .map-header-container { margin-bottom: 15px; }
+        
+        .map-wrapper {
+            position: relative;
+            max-width: 1000px;
+            margin: 0 auto;
+            border: 3px solid var(--navy-light);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            background: #000;
+        }
+
+        /* Map Iframe Style */
+        iframe {
+            width: 100%;
+            height: 500px;
+            border: none;
+            /* Invert filter applied to make Google Map look "Dark Mode" */
+            filter: invert(90%) hue-rotate(180deg) brightness(95%) contrast(90%);
+        }
+
+        /* --- MODAL --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(10, 25, 47, 0.95);
+            backdrop-filter: blur(8px);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--navy-light);
+            border: 2px solid var(--accent-blue);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 450px;
+            width: 100%;
+            animation: pulse-alert 2s infinite;
+        }
+
+        @keyframes pulse-alert {
+            0% { border-color: var(--accent-blue); }
+            50% { border-color: var(--alert-red); }
+            100% { border-color: var(--accent-blue); }
+        }
+
+        .modal-btn {
+            margin-top: 25px;
+            background: var(--accent-blue);
+            color: var(--navy-deep);
+            padding: 12px 25px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+            font-family: 'Orbitron';
+        }
+
+        @media (max-width: 768px) {
+            .stats { grid-template-columns: 1fr; }
+            iframe { height: 350px; }
+        }
+
+        .lang-btn { background: transparent; border: 1px solid var(--accent-blue); color: var(--accent-blue); padding: 5px 12px; cursor: pointer; font-family: 'Orbitron'; }
+        #clock { color: var(--accent-blue); font-weight: bold; font-family: 'Orbitron'; }
+        .card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px var(--accent-blue);
+    cursor: pointer;
+    transition: 0.3s;
+}
+    </style>
+</head>
+<body>
+
+    <div class="ai-status">
+        <div class="scan-info">
+            <p id="aiStatusLabel">🟢 AI Engine: Active</p>
+            <p id="scanTimerDisplay">Last Scan: <span id="scanTimer">0</span> sec ago</p>
+        </div>
+
+        <div class="confidence-container">
+            <p id="confLabel">Confidence: 92%</p>
+            <div class="confidence-bar"><div class="fill"></div></div>
+        </div>
+
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <button class="lang-btn" onclick="toggleLanguage()" id="langBtn">தமிழ்</button>
+            <p id="clock">00:00:00</p>
+             <a href="login.html" class="lang-btn">Login</a>
+        </div>
+    </div>
+
+    <section class="hero">
+        <h1 id="typing"></h1>
+        <p id="heroSub">Real-time Road Blockage Monitoring & History Analytics</p>
+    </section>
+
+    <section class="stats">
+    <div class="card" onclick="goBlocked()">
+        <h2 id="blockedCount">9</h2>
+        <p id="statLabel1">Total Blocked Today</p>
+    </div>
+    <div class="card" onclick="goCleared()">
+        <h2 id="clearedCount">7</h2>
+        <p id="statLabel2">Cleared Roads</p>
+    </div>
+    <div class="card">
+        <h2 style="font-size: 1.5rem;">08:00 - 10:00</h2>
+        <p id="statLabel3">Peak Time</p>
+    </div>
+</section>
+
+    <section class="map-section">
+        <div class="map-header-container">
+            <h2 id="mapTitle" class="orbitron">Live Traffic Flow - Madurai</h2>
+            <p style="color: var(--slate-gray); font-size: 0.8rem;">Real-time satellite synchronization enabled</p>
+        </div>
+        <div class="map-wrapper">
+            <iframe 
+                src="https://maps.google.com/maps?q=Madurai,TamilNadu&t=m&z=14&output=embed&layer=t" 
+                allowfullscreen>
+            </iframe>
+        </div>
+    </section>
+
+    <div id="trafficModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header orbitron" id="modalTitle" style="color: var(--alert-red);">⚠️ AI TRAFFIC ALERT</div>
+            <p id="modalBody" style="margin-top: 15px;">Critical congestion detected at <strong>Goripalayam Junction</strong>. Traffic is currently at a standstill.</p>
+            <a href="ana.html" class="modal-btn" id="modalBtn">OPEN DETAILS</a>
+        </div>
+    </div>
+
+    <script>
+        // Alert Sound Function
+        function playAlertSound() {
+            const context = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = context.createOscillator();
+            const gainNode = context.createGain();
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(500, context.currentTime);
+            oscillator.connect(gainNode);
+            gainNode.connect(context.destination);
+            gainNode.gain.setValueAtTime(0.1, context.currentTime);
+            oscillator.start();
+            oscillator.stop(context.currentTime + 0.3);
+        }
+
+        const translations = {
+            en: {
+                title: "AI SMART ROAD ALERT - MADURAI",
+                heroSub: "Real-time Road Blockage Monitoring & History Analytics",
+                stat1: "Total Blocked Today",
+                stat2: "Cleared Roads",
+                stat3: "Peak Time",
+                map: "Live Traffic Flow - Madurai",
+                aiActive: "🟢 AI Engine: Active",
+                conf: "Confidence Level: 92%",
+                langBtn: "தமிழ்",
+                modalT: "⚠️ AI TRAFFIC ALERT",
+                modalB: "Critical congestion detected at <strong>Goripalayam Junction</strong>. Traffic is currently at a standstill.",
+                modalBtn: "OPEN DETAILS"
+            },
+            ta: {
+                title: "AI சாலை எச்சரிக்கை அமைப்பு - மதுரை",
+                heroSub: "நிகழ்நேர போக்குவரத்து நெரிசல் கண்காணிப்பு மற்றும் பகுப்பாய்வு",
+                stat1: "இன்றைய மொத்த தடைகள்",
+                stat2: "சரியான சாலைகள்",
+                stat3: "அதிகப்படியான நேரம்",
+                map: "நேரடி போக்குவரத்து - மதுரை",
+                aiActive: "🟢 AI இயக்கம்: செயலில் உள்ளது",
+                conf: "உறுதி நிலை: 92%",
+                langBtn: "English",
+                modalT: "⚠️ AI போக்குவரத்து எச்சரிக்கை",
+                modalB: "<strong>கோரிப்பாளையம்</strong> சந்திப்பில் அதிக போக்குவரத்து நெரிசல் கண்டறியப்பட்டுள்ளது.",
+                modalBtn: "விவரங்களை திற"
+            }
+        };
+
+        let currentLang = 'en';
+        let seconds = 0;
+        let charIndex = 0;
+        let typingTimer;
+
+        function updateClock() { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }
+        function runScanTimer() { setInterval(() => { seconds++; document.getElementById('scanTimer').innerText = seconds; }, 1000); }
+        
+        function typeWriter() {
+            const fullText = translations[currentLang].title;
+            if (charIndex < fullText.length) {
+                document.getElementById("typing").innerHTML += fullText.charAt(charIndex);
+                charIndex++;
+                typingTimer = setTimeout(typeWriter, 60);
+            }
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'ta' : 'en';
+            const data = translations[currentLang];
+            document.getElementById('heroSub').innerText = data.heroSub;
+            document.getElementById('statLabel1').innerText = data.stat1;
+            document.getElementById('statLabel2').innerText = data.stat2;
+            document.getElementById('statLabel3').innerText = data.stat3;
+            document.getElementById('mapTitle').innerText = data.map;
+            document.getElementById('aiStatusLabel').innerText = data.aiActive;
+            document.getElementById('confLabel').innerText = data.conf;
+            document.getElementById('langBtn').innerText = data.langBtn;
+            document.getElementById('modalTitle').innerText = data.modalT;
+            document.getElementById('modalBody').innerHTML = data.modalB;
+            document.getElementById('modalBtn').innerText = data.modalBtn;
+            clearTimeout(typingTimer);
+            document.getElementById("typing").innerHTML = "";
+            charIndex = 0;
+            typeWriter();
+        }
+
+        window.onload = () => {
+            setInterval(updateClock, 1000);
+            updateClock();
+            runScanTimer();
+            typeWriter();
+            setTimeout(() => {
+                document.getElementById('trafficModal').style.display = 'flex';
+                playAlertSound();
+            }, 15000);
+        };
+        function goBlocked() {
+    window.location.href = "bith.html"; // your blocked roads page
+}
+
+function goCleared() {
+    window.location.href = "bith.html"; // your cleared roads page
+}
+    </script>
+</body>
+</html>

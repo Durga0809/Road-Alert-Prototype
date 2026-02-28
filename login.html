@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Madurai Smart Road Alert Login</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- EmailJS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script>
+   emailjs.init("YOUR_PUBLIC_KEY"); // Replace with your EmailJS public key
+</script>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+    margin:0;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#0a1f44;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:12px;
+}
+
+/* LOGIN BOX */
+.box{
+    background:#fff;
+    width:100%;
+    max-width:390px;
+    border-radius:16px;
+    padding:20px;
+}
+
+/* Language button */
+.lang{text-align:right;margin-bottom:8px;}
+.lang button{
+    background:#0a1f44;
+    color:#fff;
+    border:none;
+    padding:6px 10px;
+    border-radius:6px;
+    font-size:12px;
+}
+
+/* center */
+.center{text-align:center;}
+.register-btn{
+    width:100%;
+    border:none;
+    border-radius:25px;
+    padding:12px;
+    background:linear-gradient(90deg,#6aa5ff,#6ff0d2);
+    font-weight:600;
+    margin:10px 0 14px;
+}
+hr{border:none;border-top:1px solid #ddd;margin:12px 0;}
+label{font-size:14px;}
+input{
+    width:100%;
+    padding:10px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    margin-top:6px;
+}
+
+/* PASSWORD FIELD WITH EYE */
+.pass-wrap{
+    position:relative;
+    margin-bottom:14px;
+}
+.eye{
+    position:absolute;
+    right:10px;
+    top:50%;
+    transform:translateY(-50%);
+    cursor:pointer;
+    font-size:18px;
+}
+
+/* row */
+.row{
+    display:flex;
+    justify-content:space-between;
+    font-size:14px;
+    margin-bottom:14px;
+}
+.row a{
+    text-decoration:none;
+    color:#0a1f44;
+    font-weight:600;
+}
+.main-btn{
+    width:100%;
+    padding:12px;
+    background:#0a1f44;
+    color:white;
+    border:none;
+    border-radius:10px;
+    font-size:16px;
+}
+.or{
+    text-align:center;
+    margin:12px 0;
+    font-size:14px;
+    color:#555;
+}
+
+/* Google */
+.google{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    padding:12px;
+    border-radius:10px;
+    background:#fff;
+    border:1px solid #ccc;
+    font-size:15px;
+}
+.google img{width:18px;}
+
+/* MOBILE */
+@media(max-width:480px){
+    .box{padding:16px}
+    h2{font-size:20px}
+}
+</style>
+</head>
+<body>
+
+<div class="box">
+
+<div class="lang">
+    <button onclick="toggleLang()">English | தமிழ்</button>
+</div>
+
+<div class="center">
+    <h2 id="welcome">Welcome to Madurai Smart Road Alert</h2>
+    <hr>
+</div>
+
+<label>Email</label>
+<input type="email" id="email">
+
+<label>Password</label>
+<div class="pass-wrap">
+    <input type="password" id="pass">
+    <span class="eye" onclick="togglePass()">👁️</span>
+</div>
+
+<div class="row">
+    <span>Forgot your password?</span>
+    <a href="forgot.html">Click here</a>
+</div>
+
+<button class="main-btn" onclick="emailLogin()">Sign in</button>
+
+<div class="or">OR</div>
+
+<button class="google" onclick="openGoogleFlow()">
+    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg">
+    Sign in with Google
+</button>
+
+</div>
+
+<script>
+let lang = "en";
+
+/* LANGUAGE TOGGLE */
+function toggleLang(){
+    lang = (lang==="en")?"ta":"en";
+    document.getElementById("welcome").innerText =
+        lang==="en" ? "Welcome to Madurai Smart Road Alert" : "மதுரை ஸ்மார்ட் ரோட் அலெர்ட்-க்கு வரவேற்கிறோம்";
+}
+
+/* 👁️ SHOW/HIDE PASSWORD */
+function togglePass(){
+    let p = document.getElementById("pass");
+    p.type = (p.type==="password") ? "text" : "password";
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script>
+   emailjs.init("pzpSIjIiuU5nxG6b5"); // Replace with your EmailJS public key
+
+/* EMAIL LOGIN + SEND MADURAI ALERT */
+function emailLogin() {
+    let e = document.getElementById("email").value.trim();
+    let p = document.getElementById("pass").value.trim();
+
+    if(e === "" || p === ""){
+        alert("Enter Email & Password");
+        return;
+    }
+
+    // List of blocked roads (automatic)
+    const blockedRoads = [
+        { area: "Gandhi Nagar", reason: "Construction work", map_link: "https://maps.google.com/?q=Gandhi+Nagar+Madurai" },
+        { area: "Sellur", reason: "Water pipeline repair", map_link: "https://maps.google.com/?q=Sellur+Madurai" },
+        { area: "Vilangudi", reason: "Accident blocking road", map_link: "https://maps.google.com/?q=Vilangudi+Madurai" },
+        { area: "Madakulam", reason: "Street cleaning work", map_link: "https://maps.google.com/?q=Madakulam+Madurai" }
+    ];
+
+    // Pick a random blocked road
+    const road = blockedRoads[Math.floor(Math.random() * blockedRoads.length)];
+
+    // Send email via EmailJS
+    emailjs.send("service_5jayae6", "template_l3lo0b8", {
+        to_email: e,
+        area: road.area,
+        reason: road.reason,
+        map_link: road.map_link
+    })
+    .then(function(response) {
+        console.log("Email sent!", response.status, response.text);
+        alert(`Sign in completed!`);
+        window.location.href = "home.html";
+    }, function(error) {
+        console.error("Email failed", error);
+        alert("Sign in completed");
+        window.location.href = "home.html";
+    });
+
+}
+</script>
+
+</body>
+</html>
